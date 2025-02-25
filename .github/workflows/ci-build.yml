@@ -43,6 +43,14 @@ jobs:
         run: |
           flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            nc -z postgres 5432 && echo "PostgreSQL is up" && exit 0
+            echo "Waiting for PostgreSQL..."
+            sleep 3
+          done
+          echo "PostgreSQL failed to start" && exit 1
       - name: Run unit tests with Nose
         run: |
           nosetests -v --with-spec --spec-color --with-coverage --cover-package=service
